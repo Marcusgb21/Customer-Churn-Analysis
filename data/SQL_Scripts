@@ -1,0 +1,157 @@
+IBM Telco Customer Churn Analysis
+========================================================
+CREATE TABLE customer_churn AS
+SELECT *
+FROM read_csv_auto('data/Telco_customer_churn - Telco_Churn.csv')
+
+======================================================
+
+SELECT *
+FROM customer_churn
+WHERE "Total Charges" IS NULL 
+  OR "Monthly Charges" IS NULL
+  OR "Tenure Months" IS NULL
+
+SELECT COUNT(*) 
+FROM customer_churn
+WHERE "Total Charges" IS NULL
+   OR "Total Charges" = '';
+
+SELECT COUNT(*)
+FROM customer_churn
+WHERE "Churn Value" IS NULL
+
+SELECT *
+FROM customer_churn
+WHERE "Total Charges" = '';
+
+======================================================
+
+--New Table
+CREATE TABLE churn_clean AS
+SELECT 
+  *,
+  CAST(NULLIF(TRIM("Total Charges"), '') AS DOUBLE) AS TotalCharges_clean
+FROM customer_churn;
+
+====================================================
+
+--Churn rate
+SELECT
+  ROUND(AVG("Churn Value")*100,2) AS churn_perc
+FROM churn_clean;
+
+Insights:
+//--26.54% churn rate is quite high, which signals a significant retention issue
+=====================================================
+--Churn by contract
+SELECT
+  ROUND(AVG("Churn Value")*100,2) AS churn_contract,
+  contract
+FROM churn_clean
+GROUP BY contract
+ORDER BY contract DESC;
+
+/*Insights:
+The churn rate by contract is higher if the type of contract is on a shorter basis*/
+
+====================================================
+
+--Are new curstomers churning more?
+SELECT
+  "Tenure Months",
+  ROUND(AVG("Churn Value")*100,2) AS churn_rate
+FROM churn_clean
+GROUP BY "Tenure Months"
+ORDER BY "Tenure Months" DESC;
+
+/* Insights:
+-- Churn is highest in the first few months and steadily declines with tenure.
+Month 1 → ~62% churn 
+
+Month 2–6 → 35–50% churn
+
+60+ months → often <10% churn
+
+Suggestions: 
+-Early-stage retention problem
+-Onboarding experience likely weak
+-Customers who survive first year are loyal
+*/
+
+==================================================
+
+SELECT
+  CASE
+  WHEN "Tenure Months" <= 6 THEN '0-6 Months'
+  WHEN "Tenure Months" <= 12 THEN '6-12 Months'
+  WHEN "Tenure Months" <= 24 THEN '12-24 Months'
+  ELSE '24+ Months'
+  END AS tenure_group,
+  ROUND(AVG("Churn Value")*100,2) AS churn_rate
+FROM churn_clean
+GROUP BY tenure_group
+ORDER BY tenure_group;
+
+//-- Insights
+/*
+Customers in the first 6 months are 4x more likely to churn
+This could be due to the following reasons:
+Weak onboarding
+Possibly pricing shock
+Poor customer experience
+Expectations mismatch
+*/
+
+==================================================
+REVENUE POTENTIAL BEING LOST
+
+-- How much money is being lost due to churn?
+SELECT
+  ROUND(SUM("Monthly Charges"), 2) AS monthly_revenue_lost
+FROM churn_clean
+WHERE "Churn Value" = 1
+
+/* 
+Insights
+139k is lost each month, which is huge. This roughly estimates to around 1.6M anually. 
+This shows how churn has a direct financial impact
+*/
+
+==================================================
+
+SELECT
+  CASE
+  WHEN "Tenure Months" <= 6 AND Contract = 'Month-to-month'
+  THEN 'High risk'
+  WHEN "Tenure Months" <= 12 THEN 'Medium Risk'
+  ELSE 'Low Risk'
+  END AS risk_segment,
+  COUNT(*) AS customers,
+  ROUND(AVG("Churn Value")*100,2) AS churn_rate,
+  ROUND(SUM("Monthly Charges"),2 ) AS revenue
+FROM churn_clean
+GROUP BY risk_segment
+ORDER BY churn_rate DESC;
+
+/* 
+Insights
+High risk customers churn almost half the time 
+This signifies that the Month-to-month + short tenure is quite dangerous
+
+High risk group alone generates almost $79k in monthly revenue
+If we could save 20% of the customers
+$15k monthly retained
+
+Low risk customers are stable and generate the most value
+This signifies loyalty, and how effective long term contracts hold
+
+---------------------------------------------------------------------------
+Recommendations:
+1. Offer incentives to convert Month-to-month customers to yearly contracts. This could be done by offering discounts to improve
+tenure
+2. Improve the onboarding experience for the first 6 months
+- Offering guided tutorials and early check-ins
+3. Target high-risk customers with retention campaigns
+- We could offer contract conversion offers. For example, "Convert to anual plan and save 20% off"
+*/

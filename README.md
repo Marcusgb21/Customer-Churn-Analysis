@@ -43,9 +43,9 @@ Tenure-Based Churn Risk
 
 More than half of churn occurs within the first 6 months.
 
-[View Executive Dashboard](https://public.tableau.com/views/CustomerChurnRetentionInsightsDashboard_17704637220150/CustomerChurnRetentionOverview?:language=en-US&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link)
-
 ## Recommendations
 - Strengthen onboarding programs within the first 90 days
 - Introduce incentives for long-term contract conversion
 - Deploy targeted retention campaigns for month-to-month subscribers
+
+[View Executive Dashboard](https://public.tableau.com/views/CustomerChurnRetentionInsightsDashboard_17704637220150/CustomerChurnRetentionOverview?:language=en-US&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link)

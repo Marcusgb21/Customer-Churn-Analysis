@@ -1,6 +1,8 @@
 # Customer-Churn-Analysis
-This project presents an end-to-end churn analysis workflow, leveraging SQL/Python for data preparation and Tableau/Power BI for interactive dashboard development. The objective is to identify churn drivers, quantify revenue risk, and generate actionable retention strategies that directly impact recurring revenue.
+This project presents an end-to-end churn analysis workflow, leveraging SQL for data preparation and Tableau for interactive dashboard development. The objective is to identify churn drivers, quantify revenue risk, and generate actionable retention strategies that directly impact recurring revenue.
 
+Data Source:
+This analysis utilizes the IBM Telco Customer Churn Dataset, available on Kaggle.
 IBM Kaggle Dataset: [IBM Customer Churn](https://www.kaggle.com/datasets/yeanzc/telco-customer-churn-ibm-dataset)
 
 🚀 How to Run the Analysis
